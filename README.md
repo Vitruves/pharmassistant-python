@@ -8,6 +8,7 @@
 </p>
 
 
+
 Client Python officiel de l'[API PharmAssistant](https://api.pharmassistant.fr/docs), l'assistant pharmaceutique pour l'officine : réponses sourcées issues des bases documentaires de référence, en JSON structuré.
 
 - Clients synchrone et asynchrone, mêmes méthodes.
