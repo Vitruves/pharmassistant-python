@@ -1,0 +1,71 @@
+name: Publication
+
+# Release GitHub publiée (tag vX.Y.Z) : PyPI.
+# Lancement manuel (onglet Actions) : TestPyPI, pour une répétition.
+# Aucun jeton stocké : publication de confiance (OIDC), voir PUBLICATION.md.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  version:
+    name: Tag égal à __version__
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Comparer
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION=$(sed -nE 's/^__version__ = "([^"]+)"$/\1/p' src/pharmassistant/_version.py)
+          echo "tag=$TAG  __version__=$VERSION"
+          test -n "$VERSION"
+          test "$TAG" = "v$VERSION"
+
+  pypi:
+    name: PyPI
+    if: github.event_name == 'release'
+    needs: [ci, version]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pharmassistant
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  testpypi:
+    name: TestPyPI
+    if: github.event_name == 'workflow_dispatch'
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/pharmassistant
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true

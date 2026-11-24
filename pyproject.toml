@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pharmassistant"
+dynamic = ["version"]
+description = "Client Python officiel de l'API PharmAssistant, l'assistant pharmaceutique pour l'officine : synchrone, asynchrone, flux, conversations, ligne de commande."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [{ name = "PharmAssistant" }]
+keywords = ["pharmassistant", "pharmacie", "officine", "pharmacien", "api", "client", "sdk"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "Natural Language :: French",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = ["httpx>=0.27,<1"]
+
+[project.scripts]
+pharmassistant = "pharmassistant._cli:run"
+
+[project.urls]
+Homepage = "https://pharmassistant.fr/developpeurs"
+Documentation = "https://api.pharmassistant.fr/docs"
+Source = "https://github.com/Vitruves/pharmassistant-python"
+Changelog = "https://github.com/Vitruves/pharmassistant-python/blob/main/CHANGELOG.md"
+Issues = "https://github.com/Vitruves/pharmassistant-python/issues"
+
+[tool.hatch.version]
+path = "src/pharmassistant/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pharmassistant"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/pharmassistant", "tests/", "README.md", "CHANGELOG.md", "LICENSE"]
+
+[tool.mypy]
+strict = true
+mypy_path = "src"
+packages = ["pharmassistant"]
+
+[[tool.mypy.overrides]]
+module = "pharmassistant._models"
+warn_return_any = false
+
+[tool.ruff]
+line-length = 110
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "SIM", "RUF", "I"]
+ignore = ["RUF001", "RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["RUF059", "SIM117"]

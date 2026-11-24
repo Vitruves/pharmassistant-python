@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  qualite:
+    name: Lint et types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10
+      - name: ruff
+        run: uvx ruff check src tests
+      - name: mypy strict
+        run: uvx --with httpx mypy
+
+  build:
+    name: Construction
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10
+      - name: Construire sdist et wheel
+        run: uv build
+      - name: Vérifier les métadonnées
+        run: uvx twine check --strict dist/*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  test:
+    name: Tests Python ${{ matrix.python }} (${{ matrix.os }})
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
+        include:
+          - os: windows-latest
+            python: "3.13"
+          - os: macos-latest
+            python: "3.13"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - name: Installer la wheel construite
+        shell: bash
+        run: |
+          uv venv --python ${{ matrix.python }} .venv-test
+          uv pip install --python .venv-test dist/*.whl
+      - name: Tests contre le paquet installé
+        shell: bash
+        working-directory: tests
+        run: |
+          PY=../.venv-test/bin/python; [ -x "$PY" ] || PY=../.venv-test/Scripts/python.exe
+          "$PY" -m unittest discover -s . -v
+      - name: Commande installée
+        shell: bash
+        run: |
+          BIN=.venv-test/bin; [ -d "$BIN" ] || BIN=.venv-test/Scripts
+          "$BIN/pharmassistant" --version
+          "$BIN/pharmassistant" aide demarrage > /dev/null
