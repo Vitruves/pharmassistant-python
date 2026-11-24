@@ -1,3 +1,12 @@
+<p align="center">
+  <a href="https://pharmassistant.fr">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Vitruves/pharmassistant-python/main/.github/images/logo-sombre.png">
+      <img src="https://raw.githubusercontent.com/Vitruves/pharmassistant-python/main/.github/images/logo.png" alt="PharmAssistant" width="400">
+    </picture>
+  </a>
+</p>
+
 # pharmassistant
 
 Client Python officiel de l'[API PharmAssistant](https://api.pharmassistant.fr/docs), l'assistant pharmaceutique pour l'officine : réponses sourcées issues des bases documentaires de référence, en JSON structuré.

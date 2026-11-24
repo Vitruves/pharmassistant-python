@@ -1,6 +1,7 @@
 import io
 import json
 import unittest
+from unittest import mock
 
 import httpx
 from _outils import CLE, URL, Serveur, clarification, erreur, flux_complet, reponse_ask
@@ -74,7 +75,10 @@ class TestQuestion(unittest.TestCase):
         self.assertNotIn("Surveiller le nourrisson", sortie)
 
     def test_couleurs_dans_un_terminal(self):
-        _, sortie, _ = lancer(["Q ?", "--sans-flux"], tty=True)
+        with mock.patch("pharmassistant._cli._console_ansi", return_value=True), \
+                mock.patch.dict("os.environ", {}, clear=False) as env:
+            env.pop("NO_COLOR", None)
+            _, sortie, _ = lancer(["Q ?", "--sans-flux"], tty=True)
         self.assertIn("\033[1m", sortie)
 
     def test_references_en_inline(self):
