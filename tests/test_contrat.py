@@ -24,6 +24,8 @@ REPONSES = {
     "Passage": pa.Passage, "Clarification": pa.Clarification, "KeyPoint": pa.KeyPoint,
     "Usage": pa.Usage,
 }
+# Champs que le paquet n'expose pas exprès, même tant que le serveur les accepte.
+RETIRES = {"instructions"}
 ROUTES = {"/v1/health", "/v1/me", "/v1/ask", "/v1/conversations",
           "/v1/conversations/{conversation_id}"}
 
@@ -41,14 +43,14 @@ class TestContrat(unittest.TestCase):
 
     def test_chaque_champ_de_requete_est_un_parametre(self):
         requete = self._proprietes("AskRequest")
-        champs = set(requete) - {"stream"}
+        champs = set(requete) - {"stream"} - RETIRES
         for fonction in (pa.PharmAssistant.ask, pa.PharmAssistant.ask_stream,
                          pa.AsyncPharmAssistant.ask, pa.AsyncPharmAssistant.ask_stream,
                          _base.corps_ask):
             with self.subTest(fonction=fonction.__qualname__):
                 parametres = inspect.signature(fonction).parameters
                 self.assertLessEqual(champs, set(parametres))
-                for nom in champs - {"question", "history", "conversation_id", "instructions"}:
+                for nom in champs - {"question", "history", "conversation_id"}:
                     self.assertEqual(parametres[nom].default, requete[nom].get("default"), nom)
 
     def test_valeurs_permises(self):

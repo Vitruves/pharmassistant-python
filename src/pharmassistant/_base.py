@@ -114,7 +114,7 @@ def normaliser_historique(history: HistoryInput | None) -> list[dict[str, str]]:
 def corps_ask(question: str, *, mode: str = "standard", history: HistoryInput | None = None,
               conversation_id: str | None = None, store: bool = False,
               suggestions: bool = True, patient_advice: bool = True,
-              associated_sale: bool = True, instructions: str | None = None,
+              associated_sale: bool = True,
               citations: str = "list", stream: bool = False) -> dict[str, Any]:
     """Corps de POST /v1/ask ; seuls les champs hors défaut sont envoyés."""
     if not isinstance(question, str) or not question.strip():
@@ -140,8 +140,6 @@ def corps_ask(question: str, *, mode: str = "standard", history: HistoryInput | 
                           ("associated_sale", associated_sale)):
         if not valeur:
             corps[champ] = False
-    if instructions:
-        corps["instructions"] = instructions
     if citations != "list":
         corps["citations"] = citations
     if stream:

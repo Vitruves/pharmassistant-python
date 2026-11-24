@@ -49,20 +49,67 @@ class TestAide(unittest.TestCase):
         self.assertNotIn(" – ", textes)
 
 
+DEPOT = "https://github.com/Vitruves/pharmassistant-python/blob/main/"
+DOCS = RACINE / "docs"
+
+
+def _ancre(titre):
+    titre = re.sub(r"[`*_]", "", titre.strip().lower())
+    return re.sub(r"\s", "-", re.sub(r"[^\w\s-]", "", titre))
+
+
+def _ancres(chemin):
+    return {_ancre(t) for t in re.findall(r"^#+ (.+)$", chemin.read_text(encoding="utf-8"), re.M)}
+
+
+def _pages():
+    return [RACINE / "README.md", *sorted(DOCS.glob("*.md"))]
+
+
 class TestDocumentation(unittest.TestCase):
-    def test_readme_cite_chaque_code_et_chaque_exception(self):
-        readme = (RACINE / "README.md").read_text(encoding="utf-8")
+    def test_chaque_code_et_chaque_exception_documentes(self):
+        erreurs = (DOCS / "erreurs.md").read_text(encoding="utf-8")
         for code in CODES:
-            self.assertIn(f"`{code}`", readme, code)
+            self.assertIn(f"`{code}`", erreurs, code)
         for nom in pharmassistant.__all__:
             if nom.endswith("Error"):
-                self.assertIn(nom, readme, nom)
+                self.assertIn(nom, erreurs, nom)
 
-    def test_exemples_du_readme_compilent(self):
-        readme = (RACINE / "README.md").read_text(encoding="utf-8")
-        for bloc in re.findall(r"```python\n(.*?)```", readme, re.S):
-            compile(bloc.replace("await ", "").replace("async with", "with")
-                    .replace("async for", "for"), "README", "exec")
+    def test_exemples_compilent(self):
+        for page in _pages():
+            for bloc in re.findall(r"```python\n(.*?)```", page.read_text(encoding="utf-8"), re.S):
+                code = (bloc.replace("await ", "").replace("async with", "with")
+                        .replace("async for", "for"))
+                with self.subTest(page=page.name, debut=bloc[:40]):
+                    compile(code, page.name, "exec")
+
+    def test_liens_vers_le_depot_et_ancres(self):
+        for page in _pages():
+            texte = page.read_text(encoding="utf-8")
+            relatifs = re.findall(r"\]\((?!https?:|mailto:)([^)]+)\)", texte)
+            base = DEPOT + str(page.relative_to(RACINE).parent).replace(".", "").strip("/")
+            liens = [(f"{DEPOT}{page.relative_to(RACINE)}{c}" if c.startswith("#")
+                      else f"{base}/{c}".replace("main//", "main/")) for c in relatifs]
+            liens += re.findall(r'(?:\]\(|href=")(' + re.escape(DEPOT) + r'[^)"]+)', texte)
+            for lien in liens:
+                chemin, _, ancre = lien.replace(DEPOT, "").partition("#")
+                with self.subTest(page=page.name, lien=lien):
+                    cible = (RACINE / chemin).resolve()
+                    self.assertTrue(cible.exists(), lien)
+                    if ancre:
+                        self.assertIn(ancre, _ancres(cible), lien)
+
+    def test_sommaire_couvre_chaque_page(self):
+        sommaire = (DOCS / "README.md").read_text(encoding="utf-8")
+        for page in DOCS.glob("*.md"):
+            if page.name != "README.md":
+                self.assertIn(f"]({page.name})", sommaire, page.name)
+
+    def test_typographie_de_la_documentation(self):
+        for page in _pages():
+            texte = page.read_text(encoding="utf-8")
+            self.assertNotIn("—", texte, page.name)
+            self.assertNotIn(" – ", texte, page.name)
 
     def test_version_unique(self):
         changelog = (RACINE / "CHANGELOG.md").read_text(encoding="utf-8")

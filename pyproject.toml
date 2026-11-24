@@ -40,7 +40,8 @@ pharmassistant = "pharmassistant._cli:run"
 
 [project.urls]
 Homepage = "https://pharmassistant.fr/developpeurs"
-Documentation = "https://api.pharmassistant.fr/docs"
+Documentation = "https://github.com/Vitruves/pharmassistant-python/blob/main/docs/README.md"
+"API HTTP" = "https://api.pharmassistant.fr/docs"
 Source = "https://github.com/Vitruves/pharmassistant-python"
 Changelog = "https://github.com/Vitruves/pharmassistant-python/blob/main/CHANGELOG.md"
 Issues = "https://github.com/Vitruves/pharmassistant-python/issues"
@@ -52,7 +53,7 @@ path = "src/pharmassistant/_version.py"
 packages = ["src/pharmassistant"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/pharmassistant", "tests/", "README.md", "CHANGELOG.md", "LICENSE"]
+include = ["src/pharmassistant", "tests/", "docs/", "README.md", "CHANGELOG.md", "LICENSE"]
 
 [tool.mypy]
 strict = true

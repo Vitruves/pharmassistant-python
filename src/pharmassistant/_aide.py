@@ -57,7 +57,6 @@ SUJETS: dict[str, tuple[str, str]] = {
             patient_advice=False    sans discours patient
             associated_sale=False   sans vente associée
             suggestions=False       sans pistes d'approfondissement
-            instructions="…"        consignes de rédaction (2 000 signes)
             timeout=600             délai pour cet appel
 
         Champs utiles de la réponse :
@@ -299,7 +298,8 @@ def _sommaire() -> str:
     return ("Aide de PharmAssistant. Sujets :\n\n" + "\n".join(lignes) +
             "\n\n  codes" + " " * (largeur - 3) + "Liste des codes d'erreur"
             "\n\nPython : pharmassistant.aide(\"flux\")    Terminal : pharmassistant aide flux"
-            "\nDocumentation complète : https://api.pharmassistant.fr/docs")
+            "\nGuides : https://github.com/Vitruves/pharmassistant-python/blob/main/docs/README.md"
+            "\nAPI HTTP : https://api.pharmassistant.fr/docs")
 
 
 def texte_d_aide(sujet: str | None = None) -> str:

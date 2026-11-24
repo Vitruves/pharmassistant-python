@@ -222,7 +222,6 @@ def _options_question(p: argparse.ArgumentParser) -> None:
     g.add_argument("--sans-vente", action="store_true", help="sans vente associée")
     g.add_argument("--sans-pistes", action="store_true",
                    help="sans pistes d'approfondissement")
-    g.add_argument("--consignes", metavar="TEXTE", help="consignes de rédaction")
     g.add_argument("--sans-flux", action="store_true",
                    help="attendre la réponse entière au lieu de l'afficher au fil de l'eau")
 
@@ -339,7 +338,6 @@ def _ask_options(args: argparse.Namespace) -> dict[str, Any]:
         "patient_advice": not args.sans_patient,
         "associated_sale": not args.sans_vente,
         "suggestions": not args.sans_pistes,
-        "instructions": args.consignes,
     }
 
 

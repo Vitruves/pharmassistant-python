@@ -44,11 +44,10 @@ class TestQuestion(unittest.TestCase):
     def test_options(self):
         serveur = Serveur(reponse_ask())
         lancer(["question", "-d", "--inline", "--sans-patient", "--sans-vente", "--sans-pistes",
-                "--consignes", "Bref.", "--conserver", "Q ?"], serveur)
+                "--conserver", "Q ?"], serveur)
         self.assertEqual(serveur.corps(), {
             "question": "Q ?", "mode": "detailed", "citations": "inline", "store": True,
-            "patient_advice": False, "associated_sale": False, "suggestions": False,
-            "instructions": "Bref."})
+            "patient_advice": False, "associated_sale": False, "suggestions": False})
 
     def test_json(self):
         code, sortie, _ = lancer(["q", "--json", "Q ?"])

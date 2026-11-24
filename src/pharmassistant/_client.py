@@ -49,7 +49,6 @@ _DOC_ASK = """
         store : True ouvre une conversation gardée par le serveur ; la réponse
             porte conversation_id. Purge après 90 jours d'inactivité.
         suggestions, patient_advice, associated_sale : False retire le bloc.
-        instructions : consignes libres ajoutées à la rédaction (2 000 signes).
         citations : "list" (défaut) = références à part dans `sources` ;
             "inline" = repères [S1] dans `answer`, registre `references`,
             extraits `passages`, et aveu quand aucune source ne couvre la question.
@@ -185,7 +184,7 @@ class PharmAssistant:
     def ask(self, question: str, *, mode: str = "standard", history: HistoryInput | None = None,
             conversation_id: str | None = None, store: bool = False, suggestions: bool = True,
             patient_advice: bool = True, associated_sale: bool = True,
-            instructions: str | None = None, citations: str = "list",
+            citations: str = "list",
             timeout: TimeoutInput = NOT_GIVEN) -> Answer:
         """Pose une question et rend la réponse complète (Answer).
 
@@ -194,7 +193,7 @@ class PharmAssistant:
         """
         corps = corps_ask(question, mode=mode, history=history, conversation_id=conversation_id,
                           store=store, suggestions=suggestions, patient_advice=patient_advice,
-                          associated_sale=associated_sale, instructions=instructions,
+                          associated_sale=associated_sale,
                           citations=citations)
         donnees, quota = lire_json(self._envoyer("POST", "/v1/ask", json=corps, timeout=timeout))
         reponse = Answer(donnees)
@@ -205,7 +204,7 @@ class PharmAssistant:
     def ask_stream(self, question: str, *, mode: str = "standard",
                    history: HistoryInput | None = None, conversation_id: str | None = None,
                    store: bool = False, suggestions: bool = True, patient_advice: bool = True,
-                   associated_sale: bool = True, instructions: str | None = None,
+                   associated_sale: bool = True,
                    citations: str = "list", timeout: TimeoutInput = NOT_GIVEN) -> AnswerStream:
         """Pose une question et rend la réponse en flux (AnswerStream).
 
@@ -220,7 +219,7 @@ class PharmAssistant:
         return self._flux(corps_ask(
             question, mode=mode, history=history, conversation_id=conversation_id, store=store,
             suggestions=suggestions, patient_advice=patient_advice,
-            associated_sale=associated_sale, instructions=instructions, citations=citations,
+            associated_sale=associated_sale, citations=citations,
             stream=True), timeout)
 
     def _flux(self, corps: dict[str, Any], timeout: TimeoutInput, on_done: Any = None) -> AnswerStream:
@@ -443,12 +442,12 @@ class AsyncPharmAssistant:
     async def ask(self, question: str, *, mode: str = "standard",
                   history: HistoryInput | None = None, conversation_id: str | None = None,
                   store: bool = False, suggestions: bool = True, patient_advice: bool = True,
-                  associated_sale: bool = True, instructions: str | None = None,
+                  associated_sale: bool = True,
                   citations: str = "list", timeout: TimeoutInput = NOT_GIVEN) -> Answer:
         """Pose une question et rend la réponse complète (Answer)."""
         corps = corps_ask(question, mode=mode, history=history, conversation_id=conversation_id,
                           store=store, suggestions=suggestions, patient_advice=patient_advice,
-                          associated_sale=associated_sale, instructions=instructions,
+                          associated_sale=associated_sale,
                           citations=citations)
         donnees, quota = lire_json(await self._envoyer("POST", "/v1/ask", json=corps,
                                                        timeout=timeout))
@@ -461,14 +460,14 @@ class AsyncPharmAssistant:
                          history: HistoryInput | None = None,
                          conversation_id: str | None = None, store: bool = False,
                          suggestions: bool = True, patient_advice: bool = True,
-                         associated_sale: bool = True, instructions: str | None = None,
+                         associated_sale: bool = True,
                          citations: str = "list",
                          timeout: TimeoutInput = NOT_GIVEN) -> AsyncAnswerStream:
         """Pose une question et rend la réponse en flux (AsyncAnswerStream)."""
         return await self._flux(corps_ask(
             question, mode=mode, history=history, conversation_id=conversation_id, store=store,
             suggestions=suggestions, patient_advice=patient_advice,
-            associated_sale=associated_sale, instructions=instructions, citations=citations,
+            associated_sale=associated_sale, citations=citations,
             stream=True), timeout)
 
     async def _flux(self, corps: dict[str, Any], timeout: TimeoutInput,
